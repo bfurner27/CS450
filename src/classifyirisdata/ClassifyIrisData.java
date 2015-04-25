@@ -5,8 +5,6 @@
  */
 package classifyirisdata;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
@@ -46,8 +44,6 @@ public class ClassifyIrisData {
             
             Instances data = src.getDataSet();
             
-
-            
             data.randomize(data.getRandomNumberGenerator(25));
             
 
@@ -69,6 +65,9 @@ public class ClassifyIrisData {
             rmv.setInvertSelection(true);
             Instances testSet = Filter.useFilter(data, rmv);
             
+            
+            //print outs to see that the data is correct or at least in the correct increments. 
+            // and is being read in correctly
             System.out.println("size data: " + data.numInstances() + "size trainSet: " 
                     + trainSet.numInstances() + "size testSet: " + testSet.numInstances());
             
@@ -81,9 +80,15 @@ public class ClassifyIrisData {
                 System.out.println(testSet.instance(i).toString());
             }
             
+            // calls the classifierTest that will test the classifier for accuracy in predicting 
+            // values
             ClassifierTest(trainSet);
     } 
     
+    /**
+     * This is the test to determine how well the classifier is doing its job
+     * @param irisSet - this is the set of iris data to be tested
+     */
     public void ClassifierTest(Instances irisSet) {
         int numCorrect = 0;
         int totalNum = irisSet.numInstances();
@@ -112,12 +117,23 @@ public class ClassifyIrisData {
         reportResults(numCorrect, totalNum);
     }
     
+    /**
+     * This function reports the results to the command line
+     * @param correct - the number correct in the results
+     * @param total - the total number in the set.
+     */
     public void reportResults(int correct, int total) {
         float result = (float)correct/total;
         System.out.println("The probability of correct was: " + correct + "/" + total
                 + " or " + result * 100 + "%");
     }
     
+    /**
+     * This is the classifier, it classifies what iris it is based on the information provided.
+     * @param iris - this is the item passed in. 
+     * @return - returns a 0 for now, but will return a number based on what it predicts the 
+     * item is.
+     */
     public int classify(Instance iris) {
         return 0;
     }
