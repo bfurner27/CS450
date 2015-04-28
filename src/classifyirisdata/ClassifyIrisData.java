@@ -5,6 +5,9 @@
  */
 package classifyirisdata;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import weka.classifiers.Evaluation;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
@@ -44,6 +47,7 @@ public class ClassifyIrisData {
             
             Instances data = src.getDataSet();
             
+            data.setClassIndex(data.numAttributes() - 1);
             data.randomize(data.getRandomNumberGenerator(25));
             
 
@@ -57,39 +61,39 @@ public class ClassifyIrisData {
             RemovePercentage rmv = new RemovePercentage();
             rmv.setInputFormat(data);            
             rmv.setPercentage(30);
-            Instances trainSet = Filter.useFilter(data, rmv);
+            Instances testSet = Filter.useFilter(data, rmv);
             
             //set aside 30 percent of data for test set 
             rmv.setInputFormat(data);
             rmv.setPercentage(30);
             rmv.setInvertSelection(true);
-            Instances testSet = Filter.useFilter(data, rmv);
+            Instances trainSet = Filter.useFilter(data, rmv);
             
-            
-            //print outs to see that the data is correct or at least in the correct increments. 
-            // and is being read in correctly
-            System.out.println("size data: " + data.numInstances() + "size trainSet: " 
-                    + trainSet.numInstances() + "size testSet: " + testSet.numInstances());
-            
-            for (int i = 0; i < trainSet.numInstances(); i++) {
-                System.out.println(trainSet.instance(i).toString());
-            }
            
-            System.out.println("");
-            for (int i = 0; i < testSet.numInstances(); i++) {
-                System.out.println(testSet.instance(i).toString());
-            }
-            
             // calls the classifierTest that will test the classifier for accuracy in predicting 
             // values
-            ClassifierTest(trainSet);
+            //ClassifierTest(testSet);
+            try {
+                HardCodedClassifier classifier = new HardCodedClassifier();
+                Evaluation evaluation;
+                evaluation = new Evaluation(trainSet);
+                evaluation.evaluateModel(classifier, testSet);
+                System.out.println(evaluation.toSummaryString());
+            } catch (Exception ex) {
+                Logger.getLogger(ClassifyIrisData.class.getName()).log(Level.SEVERE, null, ex);
+            }
     } 
     
     /**
      * This is the test to determine how well the classifier is doing its job
-     * @param irisSet - this is the set of iris data to be tested
+     * @param trainSet
+     * @param testSet
      */
     public void ClassifierTest(Instances irisSet) {
+        
+        //This class has built in functions to evaluate the information from their classifier, or 
+        // the hard coded classifier
+        
         int numCorrect = 0;
         int totalNum = irisSet.numInstances();
         int irisTypePredicted = 0;
@@ -115,6 +119,7 @@ public class ClassifyIrisData {
         }
         
         reportResults(numCorrect, totalNum);
+        
     }
     
     /**
