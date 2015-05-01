@@ -3,8 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package classifyirisdata;
+package classifier;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import weka.classifiers.Evaluation;
@@ -12,20 +14,21 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
 import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.Standardize;
 import weka.filters.unsupervised.instance.RemovePercentage;
 
 /**
  *
  * @author Benjamin
  */
-public class ClassifyIrisData {
+public class ClassifyData {
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        ClassifyIrisData instance = new ClassifyIrisData();
+        ClassifyData instance = new ClassifyData();
         try {
             instance.programInterface();
         } catch (Exception ex) {
@@ -41,8 +44,17 @@ public class ClassifyIrisData {
      * @throws Exception
      */
     public void programInterface() throws Exception {
-            String filename = "C:\\Users\\Benjamin\\Documents\\Brigham Young University Idaho"
+            /* This is the filepath for some of the files I have been using on this machine
+             String filename = "C:\\Users\\Benjamin\\Documents\\Brigham Young University Idaho"
                     + "\\Computer Science\\CS450\\iris.csv";
+             String filename = "C:\\Users\\Benjamin\\Documents\\Brigham Young University Idaho"
+                    + "\\Computer Science\\CS450\\testSet.csv";
+            */
+            String filename = "";
+            BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+            System.out.println("Please enter the filename to the data: ");
+            filename = in.readLine();
+            
             DataSource src = new DataSource(filename);
             
             Instances data = src.getDataSet();
@@ -69,6 +81,16 @@ public class ClassifyIrisData {
             rmv.setInvertSelection(true);
             Instances trainSet = Filter.useFilter(data, rmv);
             
+            Standardize s;
+            
+            
+            for (int i = 0; i < trainSet.numInstances(); i++) {
+                System.out.println(trainSet.instance(i));
+            }
+            System.out.println();
+            for (int i = 0; i < testSet.numInstances(); i++) {
+                System.out.println(testSet.instance(i));
+            }
            
             // calls the classifierTest that will test the classifier for accuracy in predicting 
             // values
@@ -80,7 +102,7 @@ public class ClassifyIrisData {
                 evaluation.evaluateModel(classifier, testSet);
                 System.out.println(evaluation.toSummaryString());
             } catch (Exception ex) {
-                Logger.getLogger(ClassifyIrisData.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(ClassifyData.class.getName()).log(Level.SEVERE, null, ex);
             }
     } 
     
