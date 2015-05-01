@@ -52,7 +52,7 @@ public class ClassifyData {
             */
             String filename = "";
             BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-            System.out.println("Please enter the filename to the data: ");
+            System.out.println("Please enter the filepath to the data: ");
             filename = in.readLine();
             
             DataSource src = new DataSource(filename);
