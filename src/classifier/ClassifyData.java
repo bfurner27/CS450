@@ -105,7 +105,7 @@ public class ClassifyData {
             // values
             //ClassifierTest(testSet);
             try {
-                KNNClassifier classifier = new KNNClassifier(trainSet, 1);
+                KNNClassifier classifier = new KNNClassifier(trainSet, 3);
                 Evaluation evaluation;
                 evaluation = new Evaluation(trainSet);
                 evaluation.evaluateModel(classifier, testSet);

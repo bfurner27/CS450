@@ -28,13 +28,18 @@ public final class KNNClassifier extends Classifier {
     private List<Instance> nearestNeighbors;
     public List<Double> classes;
     
+    /**
+     * Ensures the correct data will come in the right way.
+     * @param i - this is the training instances
+     * @param kNum - this is the number we want k to be
+     */
     public KNNClassifier (Instances i, int kNum) {
         k = kNum;
         buildClassifier(i);
     }
     /**
-     * 
-     * @param i
+     * Build Classifier ensures the program is trained so that it can predict classes
+     * @param i - instances, this is the training data
      */
     @Override
     public void buildClassifier(Instances i)  {
@@ -50,9 +55,9 @@ public final class KNNClassifier extends Classifier {
     }
         
     /**
-     *
-     * @param instance
-     * @return
+     * This is the classifier, it will attempt to classify the data.
+     * @param instance - this is the instance that will be classified
+     * @return returns the number of the class it has decided
      */
     @Override
     public double classifyInstance(Instance instance) {
@@ -92,10 +97,12 @@ public final class KNNClassifier extends Classifier {
             
             insertInstanceAndValue(compare, numAttrTrue);
         }
-        return 0.0;
+        double result = findClassification();
+        return result;
     }
     
     private double findClassification() {
+        
         List<Integer> tempList = new ArrayList<>();
         
         //add k values to list to be evaluated
@@ -133,7 +140,7 @@ public final class KNNClassifier extends Classifier {
                 if (nN.classValue() == classes.get(h)) {
                     int countCopy = tempCount.get(h);
                     countCopy++;
-                    tempCount.add(h, countCopy);
+                    tempCount.set(h, countCopy);
                 }
             }
         }
@@ -146,7 +153,7 @@ public final class KNNClassifier extends Classifier {
                 indexHighest = i;
             }
         }
-        return (tempCount.get(indexHighest));
+        return (classes.get(indexHighest));
     }
     
     private void insertInstanceAndValue(Instance compare, int numAttrTrue) {
