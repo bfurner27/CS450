@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import weka.classifiers.Evaluation;
+import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
@@ -62,7 +63,14 @@ public class ClassifyData {
             data.setClassIndex(data.numAttributes() - 1);
             data.randomize(data.getRandomNumberGenerator(25));
             
-
+            Standardize s = new Standardize();
+            try {
+                s.setInputFormat(data);
+                data = Filter.useFilter(data, s);
+            } catch (Exception ex) {
+                System.out.println("ERROR: This did not work");
+            }
+            
             /*
             This section has a problem because I could not get the inverse property to work so 
             it actually does not really split the items but choses out 30% and 70% out of the data
@@ -81,7 +89,7 @@ public class ClassifyData {
             rmv.setInvertSelection(true);
             Instances trainSet = Filter.useFilter(data, rmv);
             
-            Standardize s;
+            
             
             
             for (int i = 0; i < trainSet.numInstances(); i++) {
@@ -91,12 +99,13 @@ public class ClassifyData {
             for (int i = 0; i < testSet.numInstances(); i++) {
                 System.out.println(testSet.instance(i));
             }
+            
            
             // calls the classifierTest that will test the classifier for accuracy in predicting 
             // values
             //ClassifierTest(testSet);
             try {
-                HardCodedClassifier classifier = new HardCodedClassifier();
+                KNNClassifier classifier = new KNNClassifier(trainSet, 1);
                 Evaluation evaluation;
                 evaluation = new Evaluation(trainSet);
                 evaluation.evaluateModel(classifier, testSet);
@@ -140,8 +149,7 @@ public class ClassifyData {
             }
         }
         
-        reportResults(numCorrect, totalNum);
-        
+        reportResults(numCorrect, totalNum);    
     }
     
     /**
