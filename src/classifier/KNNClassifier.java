@@ -79,12 +79,12 @@ public final class KNNClassifier extends Classifier {
                 if (attr.isNominal()) {
                     isMatch = isNomAttrMatch(instance.stringValue(attr), compare.stringValue(attr));
                 } else {
-                    double standardDeviation;
+                    double standardDeviation = 0;
                     
                     /* this will calculate the deviation I want the compare function to take into
                     account */
-                    standardDeviation = dataToCompare.variance(attr) /
-                            (dataToCompare.numClasses() * 2);
+                    //standardDeviation = dataToCompare.variance(attr) /
+                    //        (dataToCompare.numClasses() * 10000);
                     isMatch = isNumAttrMatch(instance.value(attr), compare.value(attr), standardDeviation);
                 }
                 
@@ -98,6 +98,7 @@ public final class KNNClassifier extends Classifier {
             insertInstanceAndValue(compare, numAttrTrue);
         }
         double result = findClassification();
+        System.out.println(result);
         return result;
     }
     
