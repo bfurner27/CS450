@@ -20,23 +20,25 @@ import weka.core.Instances;
  * @author Benjamin
  */
 public class DecisionTreeClassifier extends Classifier {
-    Node<Instance> head = new Node<>();
+    Node<Instance> head;
     @Override
     public void buildClassifier(Instances inst) {
         //find the most common class and format all the class values
         double mostCommon = 0.0;
-       
 
-        //gets an array with the class in its index position and number of instances of class
-        List<Double> classesCount = findClassesCount(inst);
-        //calculate the total entropy
-        double totalEntropy = findTotalEntropy(classesCount);
-        
-
+        //call the function to create the tree and hopefully display the results
+        String treeRep = " ";
+        head = makeTree(inst, head, treeRep);
+        head.displayTree(treeRep);
     }
     
     
-    public Node makeTree(Instances trainingData, List<Double> classesCount, double totalEntropy) {
+    public Node makeTree(Instances trainingData, Node head, String treeRep) {
+        //gets an array with the class in its index position and number of instances of class
+        List<Double> classesCount = findClassesCount(trainingData);
+        
+        //calculate the total entropy
+        double totalEntropy = findTotalEntropy(classesCount);
         
         // put the class values in an array from highest number of classes to lowest
         List<Double> classes = new ArrayList<>();
@@ -58,7 +60,7 @@ public class DecisionTreeClassifier extends Classifier {
         } else if (classesCount.get(classes.get(0).intValue()) == trainingData.numInstances()) {
             return (new Node<>(classes.get(0)));       
         } else {
-            
+            head = new Node();
             double gain[] = new double[trainingData.numAttributes()];
             //zero out the array
             for (int i = 0; i < gain.length; i++) {
@@ -78,24 +80,47 @@ public class DecisionTreeClassifier extends Classifier {
                 }
             }
             
+            //set the attribute value for the node
+            head.setAttributeIndx(trainingData.attribute(bestAttributeIndx));
+            
             //find attribute values
             if (trainingData.attribute(bestAttributeIndx).isNumeric()) {
                 List<Double> values = findAttributeValuesNumeric(trainingData, bestAttributeIndx);
+                
+                //loop through the values of the attribute
                 for (Double value : values) {
-                    Instances smallerTrainData;
-                    int smallerNumAttributes = 0;
+                    Instances smallerTrainData = new Instances(trainingData);
+                    smallerTrainData.delete();
+                    // loops through the data and separates into a group based on the attribute
+                    for (int i = 0; i < trainingData.numInstances(); i++) {
+                        if (trainingData.instance(i).value(bestAttributeIndx) == value) {
+                            smallerTrainData.add(trainingData.instance(i));
+                        }
+                    }
                     
+                    //remove the attribute so it cannot be used late in the recursive process
+                    smallerTrainData.deleteAttributeAt(bestAttributeIndx);
                     
-                    //makeTree(smallerTrainData, classes, smallerNumAttributes, totalEntropy);
+                    // recursive call to go to the next level of recursion
+                    Node subTree = makeTree(smallerTrainData, head, treeRep);
+                    
+
+                    // set the tree's index so that the attribute in the node above it will be able
+                    // to know which value is in that particular tree.
+                    subTree.setCheckIndxDouble(value);
+                    subTree.setAttributeIndx(trainingData.attribute(bestAttributeIndx));
+                    
+                    //link the trees
+                    head.addChild(subTree); 
                 }
+                return head;
             } else {
                 List<String> values = findAttributeValuesNominal(trainingData, bestAttributeIndx);
                 
+                //loop through the values of the attribute
                 for (String value : values) {
                     Instances smallerTrainData = new Instances(trainingData);
                     smallerTrainData.delete();
-           
-                    int smallerNumAttributes = 0;
                     
                     for (int i = 0; i < trainingData.numInstances(); i++) {
                         if (trainingData.instance(i).stringValue(bestAttributeIndx).equals(value)) {
@@ -103,19 +128,25 @@ public class DecisionTreeClassifier extends Classifier {
                         }
                     }
                     
+                    //remove the attribute so it cannot be used later in the recursive process
                     smallerTrainData.deleteAttributeAt(bestAttributeIndx);
-                    classesCount = findClassesCount(smallerTrainData);
-                    totalEntropy = findTotalEntropy(classesCount);
+                   
                     
-                    makeTree(smallerTrainData, classesCount, totalEntropy);
+                    // recursive call to go to the next level of recursion
+                    Node subTree = makeTree(smallerTrainData, head, treeRep);
                     
+                    // set the tree's index so that the attribute in the node above it will be able
+                    // to know which value is in that particular tree.
+                    subTree.setCheckIndx(trainingData.attribute(bestAttributeIndx).indexOfValue(value));
+                    subTree.setAttributeIndx(trainingData.attribute(bestAttributeIndx));
+                  
                     
+                    //link the trees
+                    head.addChild(subTree); 
                 }
-                Node subNode = new Node<>();
-                return subNode;
+                return head;
             }
         }
-        return null;
     }
     
     
@@ -199,7 +230,6 @@ public class DecisionTreeClassifier extends Classifier {
      * counting all the information that is available to see which feature has the highest 
      * information gain
      * @param instances
-     * @param classes
      * @param attributeIndex
      * @return
      */
@@ -287,6 +317,7 @@ public class DecisionTreeClassifier extends Classifier {
         return gain;
     }
     
+   
     
     
     /**
@@ -296,7 +327,72 @@ public class DecisionTreeClassifier extends Classifier {
      */
     @Override
     public double classifyInstance(Instance instance) {
-        return 0;
+        if (head.getData() < 0) {
+            Node value = head;
+            while (true) {
+                List<Node> children = value.getChildren();
+                if (instance.isMissing(value.getAttributeIndx())) {
+                    if (children.isEmpty()) {
+                        return 0.0;
+                    } else {
+                        value = children.get(0);
+                    }
+                //case for numbers
+                } else if (head.getAttributeIndx().isNumeric()) {
+                   
+                    boolean isNextLayer = false;
+                    for (Node child : children) {
+                        //check if the data is greater =than one and if the two values are equal
+                        if (child.getData() >= 0.0 
+                            && instance.value(child.getAttributeIndx()) <=
+                                child.getCheckIndxDouble()) {
+   
+                            return child.getData();
+                        } else if (instance.value(child.getAttributeIndx()) <=
+                                child.getCheckIndxDouble()) {
+                            
+                            value = child;
+                            isNextLayer = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!isNextLayer) {
+                        if (children.isEmpty()) {
+                            return 0.0;
+                        } else {
+                            value = children.get(children.lastIndexOf(children));
+                        }
+                    } 
+                //check string case      
+                } else {
+                    boolean isNextLayer = false;
+                    for (Node child : children) {
+                        //check if the data is greater =than one and if the two values are equal
+                        if (child.getData() >= 0.0 
+                            && instance.stringValue(child.getCheckIndx()).equals(
+                               child.getAttributeIndx().value(child.getCheckIndx()))) {
+   
+                            return child.getData();
+                        } else if (instance.stringValue(child.getCheckIndx()).equals(
+                                child.getAttributeIndx().value(child.getCheckIndx()))) {
+                            
+                            value = child;
+                            isNextLayer = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!isNextLayer) {
+                        return 0.0;
+                    } 
+                }
+            
+            }
+        } else {
+            return head.getData();
+        }
     }
+    
     
 }

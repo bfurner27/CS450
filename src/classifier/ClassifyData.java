@@ -99,15 +99,15 @@ public class ClassifyData {
             for (int i = 0; i < testSet.numInstances(); i++) {
                 System.out.println(testSet.instance(i));
             }
-           trainSet.classAttribute().numValues();
-            System.out.println("   I am here     !!!!!");
+            
             // calls the classifierTest that will test the classifier for accuracy in predicting 
             // values
             //ClassifierTest(testSet);
             try {
-                KNNClassifier classifier = new KNNClassifier(trainSet, 5);
+                DecisionTreeClassifier classifier = new DecisionTreeClassifier();
                 Evaluation evaluation;
                 evaluation = new Evaluation(trainSet);
+                classifier.buildClassifier(trainSet);
                 evaluation.evaluateModel(classifier, testSet);
                 System.out.println(evaluation.toSummaryString());
             } catch (Exception ex) {

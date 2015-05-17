@@ -3,6 +3,7 @@ package classifier;
 
 import java.util.LinkedList;
 import java.util.List;
+import weka.core.Attribute;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -16,61 +17,65 @@ import java.util.List;
  * @param <T>
  */
 public class Node<T> {
-    private T data;
-    private int attributeIndx;
-    private double check;
+    private double data;
+    private Attribute attributeIndx;
+    private int checkIndx;
+    private double checkIndxDouble;
     private List<Node> children;
 
-    public int getAttributeIndx() {
+    public Attribute getAttributeIndx() {
         return attributeIndx;
     }
 
-    public void setAttributeIndx(int attributeIndx) {
+    public void setAttributeIndx(Attribute attributeIndx) {
         this.attributeIndx = attributeIndx;
     }
 
-    public double getCheck() {
-        return check;
+    public int getCheckIndx() {
+        return checkIndx;
     }
 
-    public void setCheck(double check) {
-        this.check = check;
+    public void setCheckIndx(int check) {
+        this.checkIndx = check;
     }
     
     public Node() {
         children = new LinkedList<>();
-        data = null;
-        attributeIndx = 0;
-        check = -1.0;
+        data = -1.0;
+        attributeIndx = null;
+        checkIndx = -1;
+        checkIndxDouble = -1.0;
 
     }
     
-    public Node(T data) {
+    public Node(double data) {
         children = new LinkedList<>();
         this.data = data;        
-        attributeIndx = 0;
-        check = -1.0;
+        attributeIndx = null;
+        checkIndx = -1;
+        checkIndxDouble = -1.0;
     }
     
     public Node(int numChildren) {
         children = new LinkedList<>();
-        data = null;
+        data = -1.0;
         for (int i = 0; i < numChildren; i++) {
             children.add(new Node(numChildren));
         }
-        attributeIndx = 0;
-        check = -1.0;
+        attributeIndx = null;
+        checkIndx = -1;
+        checkIndxDouble = -1.0;
     }
     
     public List<Node> getChildren() {
         return children;
     }
     
-    public T getData() {
+    public double getData() {
         return data;
     }
     
-    public void setData(T data) {
+    public void setData(double data) {
         this.data = data;
     }
     
@@ -78,7 +83,31 @@ public class Node<T> {
         this.children = children;
     }
     
-    public void addChild (T data) {
-        children.add(new Node(data));
+    public void addChild(Node node) {
+        children.add(node);
+    }
+    
+    public double getCheckIndxDouble() {
+        return checkIndxDouble;
+    }
+
+    public void setCheckIndxDouble(double checkIndxDouble) {
+        this.checkIndxDouble = checkIndxDouble;
+    }
+    
+    public void displayTree(String format) {
+        for (Node child : children) {
+            if (child != null)
+            {
+                child.displayTree(format += " ");
+                if (child.getData() >= 0) {
+                    System.out.println(format + "Leaf Node: " + child.getData());
+                } else if (child.getCheckIndx() == -1 || child.getCheckIndxDouble() == -1.0) {
+                    System.out.println(format + "Parent Node: " + child.getAttributeIndx().name());
+                } else {
+                    System.out.println(format + "tree child: " +  child.getAttributeIndx().name());
+                }
+            }
+        }
     }
 }
