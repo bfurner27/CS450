@@ -99,11 +99,12 @@ public class ClassifyData {
             for (int i = 0; i < testSet.numInstances(); i++) {
                 System.out.println(testSet.instance(i));
             }
-            
+            System.out.println(trainSet.instance(0).numValues());
             // calls the classifierTest that will test the classifier for accuracy in predicting 
             // values
             //ClassifierTest(testSet);
             try {
+                //DecisionTreeClassifier classifier = new DecisionTreeClassifier();
                 DecisionTreeClassifier classifier = new DecisionTreeClassifier();
                 Evaluation evaluation;
                 evaluation = new Evaluation(trainSet);
