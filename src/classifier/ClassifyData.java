@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import nuralNetwork.NeuralNetworkClassifier;
 import weka.classifiers.Evaluation;
 import weka.core.Attribute;
 import weka.core.Instance;
@@ -105,7 +106,8 @@ public class ClassifyData {
             //ClassifierTest(testSet);
             try {
                 //DecisionTreeClassifier classifier = new DecisionTreeClassifier();
-                DecisionTreeClassifier classifier = new DecisionTreeClassifier();
+                //DecisionTreeClassifier classifier = new DecisionTreeClassifier();
+                NeuralNetworkClassifier classifier = new NeuralNetworkClassifier();
                 Evaluation evaluation;
                 evaluation = new Evaluation(trainSet);
                 classifier.buildClassifier(trainSet);

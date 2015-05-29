@@ -18,6 +18,12 @@ public class Neuron {
     private List<Double> inputWeights;
     private double threshold = 0.0;
     
+    /**
+     * The constructor it will take the number of inputs that the user has specified and will create
+     * a new node with weights. It also includes the bias input in its calculations so the user does
+     * not have to manually input that value
+     * @param numInputs - this is the number of inputs the node will take
+     */
     public Neuron(int numInputs) {
         //set the input Weights
         inputWeights = new ArrayList<>();
@@ -42,32 +48,31 @@ public class Neuron {
      * @return
      */
     public double calculateInputResults(List<Double> inputs) {
-        // checks if the attributes in the input are the right number
-        if (inputs.size() + 1 != inputWeights.size())
+        // checks if the attributes in the input are the right number accounts for bias input
+        if (inputs.size() != inputWeights.size() - 1)
         {
-            System.out.println("ERROR: inputs size does not match predetermined size");
+            System.out.println("ERROR: inputs size does not match predetermined size calculateInputResults(Double)");
             System.exit(0);
         }
         
         //sums the inputs multiplied by their respective weight
         double sum = inputs.get(inputs.size() - 1) * -1.0; //bias node
         
-        for (int i = 0; i < inputWeights.size(); i++) {
+        for (int i = 0; i < inputWeights.size() - 1; i++) {
             sum += inputs.get(i) * inputWeights.get(i);
         }
         
         //tells neuron to fire if the threshold is smaller than the sum
-        if (sum > threshold)
-        {
-            return 1.0;
-        }
-        return 0.0;
+        return calculateThreshold(sum);
     }
     
     /**
      * This calculates if the neuron will fire or return a 1 based on the inputs from the instance
      * and the weights that were specified in the constructor, it will take into account the bias 
-     * node which will always be a -1.
+     * node which will always be a -1. 
+     * This function takes into account that weka has a class count as an attribute so that if there
+     * is no class value in there it will not actually work, to overcome this one could add a dummy
+     * attribute at the end and this function will then ignore that last input
      * 
      * @param inputs - this is a weka instance with attribute values to be checked
      * @return
@@ -86,20 +91,19 @@ public class Neuron {
         //This will sum the attribute values by their respective input weight
         double sum = -1.0 * inputWeights.get(inputWeights.size() - 1);
         for (int i = 0; i < inputWeights.size() - 1; i++) {
-            System.out.println("attribute value: " + inputs.value(i) + " * weight: " + inputWeights.get(i));
             sum += inputs.value(i) * inputWeights.get(i);
         }
-        System.out.println();
         
-        /* 
-        This will fire th neuron if the threshold is less than the sum
-        */
-        if (sum > threshold)
-        {
-            return 1.0;
-        }
-        return 0.0;
+        return calculateThreshold(sum);
     }
     
+    /**
+     * This will calculate the threshold function which is 1/1+e^-n
+     * @param sum - this is the sum that was calculated for the node
+     * @return
+     */
+    private double calculateThreshold(double sum) {
+        return 1 / (1 + Math.pow(Math.E, -sum));
+    }
     
 }

@@ -21,19 +21,30 @@ public class NeuralLayer {
         neurons = new ArrayList<>();
         outputs = new ArrayList<>();
         
-        for (int i = 0; i < numNeurons; i++) {
+        //create a new layer of neurons
+        for (int i = 0; i < numNeurons; i++) {  
             neurons.add(new Neuron(numInputs));
         }
     }
     
-    public void calculateOutputs(Instance instance) {
-        for (int i = 0; i < neurons.size() - 1; i++) {
-            
-        }
+    public List<Double> classifyInstance(Instance instance) {
+        resetOutput();
         for (Neuron n : neurons) {
             outputs.add(n.calculateInputResults(instance));
         }
-            
+        return outputs;
+    }
+    
+    public List<Double> classifyInstance(List<Double> instance) {
+        resetOutput();
+        for (Neuron n : neurons) {
+            outputs.add(n.calculateInputResults(instance));       
+        }
+        return outputs;
+    }
+    
+    private void resetOutput() {
+        outputs = new ArrayList<>();
     }
     
     public List<Double> getOutputs() {
