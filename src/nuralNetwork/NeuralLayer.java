@@ -43,6 +43,30 @@ public class NeuralLayer {
         return outputs;
     }
     
+    
+    public double sumErrorLayer(List<Double> nodeErrors, int neuronWeight) {
+        double sumError = 0.0;
+      
+        for (int i = 0; i < neurons.size(); i++) {
+            //this will sum the errors for the given weights at that index with the corresponding error
+            sumError += neurons.get(i).getNeuronWeight(neuronWeight) * nodeErrors.get(i);
+        }
+        
+        return sumError;
+    }
+    
+    public void updateWeights(List<Double> neuronErrors, List<Double> inputs, double trainRate) {
+        for (int i = 0; i < neurons.size(); i++) {
+            neurons.get(i).trainWeights(trainRate, neuronErrors.get(i), inputs);
+        }
+    }
+    
+    public void updateWeights(List<Double> neuronErrors, Instance inputs, double trainRate) {
+        for (int i = 0; i < neurons.size(); i++) {
+            neurons.get(i).trainWeights(trainRate, neuronErrors.get(i), inputs);
+        }
+    }
+    
     private void resetOutput() {
         outputs = new ArrayList<>();
     }
@@ -50,4 +74,10 @@ public class NeuralLayer {
     public List<Double> getOutputs() {
         return outputs;
     }
+    
+    public List<Neuron> getNeurons() {
+        return neurons;
+    }
+    
+    
 }

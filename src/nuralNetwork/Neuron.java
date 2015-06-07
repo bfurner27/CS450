@@ -32,7 +32,7 @@ public class Neuron {
         //accounts for bias node by adding one to the number of inputs
         Random rndm = new Random();
         
-        double rangeMax = .5;
+        double rangeMax = 1;
         double rangeMin = -.25;  //these two numbers are to scale the random number
         for (int i = 0; i < numInputs + 1; i++) {
             inputWeights.add(rndm.nextDouble() * rangeMax + rangeMin);
@@ -104,6 +104,47 @@ public class Neuron {
      */
     private double calculateThreshold(double sum) {
         return 1 / (1 + Math.pow(Math.E, -sum));
+    }
+    
+    
+    public double getNeuronWeight(int weightIndex) {
+        return inputWeights.get(weightIndex);
+    }
+    
+    
+    /**
+     * Only works if calcErrorHiddenNode, or calcErrorOutputNode has been called.
+     * @param weightIndex
+     * @param error
+     * @return 
+     */
+    public double calcErrorOfWeight(int weightIndex, double error) {
+        return (inputWeights.get(weightIndex) * error);
+    }
+    
+    public void trainWeights(double trainRate, double error, List<Double> inputs) {
+        //train the bias input weight
+        inputWeights.set(inputWeights.size() - 1,inputWeights.get(inputWeights.size() - 1) - (trainRate * error * -1));
+        
+        //this will update the rest of the weights based on the inputs.
+        //System.out.println("\nAnother Line of Input Weights");
+        for (int i = 0; i < inputWeights.size() - 1; i++) {
+            //System.out.println("before Weight: " + inputWeights.get(i));
+            double adjustedWeights = inputWeights.get(i) - (trainRate * error * inputs.get(i));
+            inputWeights.set(i, adjustedWeights);
+            //System.out.println(inputWeights.get(i));
+        }
+    }
+    
+    public void trainWeights(double trainRate, double error, Instance instance) {
+                //train the bias input weight
+        inputWeights.set(inputWeights.size() - 1,inputWeights.get(inputWeights.size() - 1) - (trainRate * error * -1));
+        
+        //this will update the rest of the weights based on the inputs.
+        for (int i = 0; i < inputWeights.size() - 1; i++) {
+            double adjustedWeights = inputWeights.get(i) - (trainRate * error * instance.value(i));
+            inputWeights.set(i, adjustedWeights);
+        }
     }
     
 }
